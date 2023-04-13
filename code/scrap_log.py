@@ -36,16 +36,21 @@ def load_snort_result(filename):
             hostname_tmp = line.split("HTTP Hostname: ")[1]
             captured_records.append(captured_record(url_tmp, event_time_tmp, hostname_tmp))
 
-
-load_snort_result("log_result.txt")
-
-captured_records_columns = ["full_url", "event_time", "hostname"]
+captured_records_columns = ["full_url", "event_time", "hostname", "injection"]
 captured_records_df = pd.DataFrame(columns=captured_records_columns)
 
+load_snort_result("sqli_log.txt")
+
 for record in captured_records:
-    row = pd.DataFrame([[record.url, record.event_time, record.hostname]], columns=captured_records_columns)
+    row = pd.DataFrame([[record.url, record.event_time, record.hostname, 1]], columns=captured_records_columns)
     captured_records_df = pd.concat([captured_records_df, row], ignore_index=True)
 
-print(captured_records_df)
+captured_records = []
 
-captured_records_df.to_csv('pandas_df.csv', index=False)
+load_snort_result("no_sqli_log.txt")
+
+for record in captured_records:
+    row = pd.DataFrame([[record.url, record.event_time, record.hostname, 0]], columns=captured_records_columns)
+    captured_records_df = pd.concat([captured_records_df, row], ignore_index=True)
+
+captured_records_df.to_csv('sql_df.csv', index=False)
